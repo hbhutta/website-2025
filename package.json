@@ -1,0 +1,22 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "octokit": "^4.0.2",
+    "tailwindcss": "^3.4.16"
+  },
+  "description": "The website of Haad Bhutta",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "buildcss": "npx tailwindcss -i ./public/styles.css -o ./public/output.css && exit 1"
+  },
+  "keywords": [],
+  "author": "Haad Bhutta",
+  "license": "ISC"
+}
