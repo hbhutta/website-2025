@@ -1,37 +1,41 @@
 async function requestRepoNames() {
-  const result = await fetch("http://localhost:3000/repoName");
-  if (!result.ok) {
-    return null;
-  }
-  const json = await result.json();
-  return json;
+  let response = await fetch("http://localhost:3000/repoNames");
+  let value = await response.json();
+  return value.map((repo) => repo["name"]);
 }
 
 async function requestCommitCount(repoName) {
-  const result = await fetch(`http://localhost:3000/commitCount?repoName=${repoName}`);
-  if (!result.ok) {
-    return null;
+  let response = await fetch(
+    `http://localhost:3000/commitCount?repoName=${repoName}`
+  );
+  if (response == null) {
+    return 0;
   }
-  const json = await result.json();
-  return json;
+  let value = await response.json();
+  return value["data"].length;
 }
 
-let repoNames = null;
 (async () => {
-  let repoNamesResolution = await requestRepoNames(); // Wait for the promise to resolve
-  repoNames = JSON.parse(repoNamesResolution); // Parse the resolved promise
-});
-console.log(repoNames)
+  repoNames = await requestRepoNames();
+  let totalCommitCount = 0;
+  console.log(repoNames);
+  console.log("before");
+  console.log(repoNames);
+  for (let i = 0; i < repoNames.length; i++) {
+    console.log(repoNames[i]);
+    totalCommitCount += await requestCommitCount(repoNames[i]);
+    console.log(totalCommitCount);
+  }
+  console.log("after");
+  console.log(totalCommitCount);
+})();
 
-
-
-
-// let commitCountResult = requestCommitCount();
-// let commitCount = JSON.parse(commitCountResult);
-
+/*
 window.onload = () => {
-  if (document.getElementById("git-stats"))
+  if (document.getElementById("git-stats")) {
     document.getElementById(
       "git-stats"
-    ).innerHTML = `Haad has made ${-1} commits in ${repoNames.length} repositories since August, 2022`;
-};
+    ).innerHTML = `Haad has made ${-1} commits in ${repoNames} repositories since August, 2022`;
+  }
+}
+*/

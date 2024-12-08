@@ -1,9 +1,14 @@
 import path from "path";
 import express from "express";
 import "dotenv/config.js";
+import { Octokit } from "octokit";
 
 const __dirname = path.resolve();
 const app = express();
+
+const octokit = new Octokit({
+  auth: process.env.GHP,
+});
 
 app.use(express.static(__dirname + "/public"));
 
@@ -13,42 +18,26 @@ function logger(req, res, next) {
 }
 app.use(logger);
 
+async function getSomething(URL) {
+  let response = await fetch(URL);
+  let value = await response.json();
+  return value;
+}
+
 async function getRepoNames() {
-  try {
-    const result = await fetch("https://api.github.com/users/hbhutta/repos");
-    if (!result.ok) {
-      throw new Error(`Unable to get repoNames, status code: ${result.status}`);
-    }
-    const json = await result.json();
-    let repoNamesJSON = {
-      repoNames: json.map((element) => element["name"]),
-    };
-    return repoNamesJSON;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  return getSomething("https://api.github.com/users/hbhutta/repos");
 }
 
 async function getCommitCount(repoName) {
-  try {
-    const result = await fetch(
-      `https://api.github.com/repos/hbhutta/${repoName}/commits`
-    );
-    if (!result.ok) {
-      throw new Error(
-        `Unable to get commitCount, status code: ${result.status}`
-      );
-    }
-    const json = await result.json();
-    let commitCountJSON = {
-      commitCount: json.length,
-    };
-    return commitCountJSON;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  console.log(repoName);
+  let response = await octokit.request("GET /repos/{owner}/{repo}/commits", {
+    owner: "hbhutta",
+    repo: repoName,
+    headers: {
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+  });
+  return response;
 }
 
 app.get("/", (req, res) => {
@@ -60,14 +49,21 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/home/index.html", options);
 });
 
-app.get("/commitCount", async (req, res) => {
-  let commitCountJSON = await getCommitCount(req.query.repoName);
-  res.send(commitCountJSON);
-});
-
 app.get("/repoNames", async (req, res) => {
   let repoNamesJSON = await getRepoNames();
+  console.log(repoNamesJSON);
   res.send(repoNamesJSON);
+});
+
+app.get("/commitCount", async (req, res) => {
+  let commitCountJSON = await getCommitCount(req.query.repoName);
+  console.log(commitCountJSON);
+  console.log(req.query.repoName);
+
+  if (commitCountJSON == null) {
+    res.send(null);
+  }
+  res.send(commitCountJSON);
 });
 
 // Development
