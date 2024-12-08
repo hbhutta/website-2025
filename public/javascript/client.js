@@ -1,18 +1,59 @@
+async function requestSomething(URL, callback) {
+  let response = await fetch(URL);
+  let value = await response.json();
+  return callback(value);
+}
+
+/*
 async function requestRepoNames() {
   let response = await fetch("http://localhost:3000/repoNames");
   let value = await response.json();
   return value.map((repo) => repo["name"]);
 }
+*/
+async function requestRepoNames() {
+  return requestSomething(
+    `http://localhost:3000/commitCount?repoName=${repoName}`,
+    (value) => {
+      return value.map((repo) => repo["name"]);
+    }
+  );
+}
 
+/*
 async function requestCommitCount(repoName) {
   let response = await fetch(
     `http://localhost:3000/commitCount?repoName=${repoName}`
   );
-  if (response == null) {
-    return 0;
-  }
   let value = await response.json();
   return value["data"].length;
+}
+*/
+async function requestCommitCount(repoName) {
+  return requestSomething(
+    `http://localhost:3000/commitCount?repoName=${repoName}`,
+    (value) => {
+      return value["data"].length;
+    }
+  );
+}
+
+/*
+async function requestInsertionCount(repoName, commitRef) {
+  let response = await fetch(
+    `http://localhost:3000/insertionCount?repoName=${repoName}&commitRef=${commitRef}`
+  )
+  let value = await response.json();
+  return value["stats"]["total"];
+}
+*/
+async function requestInsertionCount(repoName, commitRef) {
+  return requestSomething(
+    `http://localhost:3000/insertionCount?repoName=${repoName}&commitRef=${commitRef}`,
+    (value) => {
+      return value["stats"]["total"];
+    }
+  );
 }
 
 var count = 0;
