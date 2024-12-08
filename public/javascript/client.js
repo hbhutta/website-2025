@@ -15,56 +15,46 @@ async function requestCommitCount(repoName) {
   return value["data"].length;
 }
 
-// (async () => {
-//   repoNames = await requestRepoNames();
-//   let totalCommitCount = 0;
-//   console.log(repoNames);
-//   console.log("before");
-//   console.log(repoNames);
-//   for (let i = 0; i < repoNames.length; i++) {
-//     console.log(repoNames[i]);
-//     totalCommitCount += await requestCommitCount(repoNames[i]);
-//     console.log(totalCommitCount);
-//   }
-//   console.log("after");
-//   console.log(totalCommitCount);
-// })();
-
-/*
-function setOnLoad(count, names) {
-  console.log("Setting window.onload()...");
-  window.onload = () => {
-    document.getElementById(
-      "git-stats"
-    ).innerHTML = `Haad has made ${count} commits in ${names.length} repositories since August, 2022`;
-  };
-}
-*/
-
 var count = 0;
 var nRepos = 0;
 
 requestRepoNames().then(async (repoNames) => {
   nRepos = repoNames.length;
-  // totalCommitCount = 0;
   for (let i = 0; i < repoNames.length; i++) {
     console.log(repoNames[i]);
     count += await requestCommitCount(repoNames[i]);
-    // console.log(totalCommitCount);
     console.log(count);
   }
-  document.getElementById(
-    "git-stats"
-  ).innerHTML = `Haad has made ${count} commits in ${nRepos} repositories since August, 2022`;
-});
 
-// console.log(count);
-// console.log(nRepos);
-/*
-window.onload = () => {
-  // console.log(123);
-  document.getElementById(
-    "git-stats"
-  ).innerHTML = `Haad has made ${count} commits in ${nRepos} repositories since August, 2022`;
-};
-*/
+  /**
+   * This statement should already be loaded,
+   * the only thing we should wait for is count and nRepos
+   *
+   * e.g.
+   *
+   * While we are still waiting for count and nRepos,
+   * the message should be:
+   *
+   * Haad has made 0 commits in 0 repositories since August, 2022.
+   *
+   * But the moment count and nRepos have values,
+   * this message should be updated.
+   *
+   * https://stackoverflow.com/questions/11528132/determining-whether-the-window-has-loaded-without-using-any-global-variables
+   * There is still the possibility that
+   * even though count and nRepos have been set,
+   * the page still has not loaded (for whatever reason),
+   * so it would still be safest to first make sure
+   * that the page has been set before
+   * trying to get an element by id (since
+   * if the page has not loaded, this element will not yet exist)
+   */
+  if (
+    document.readyState === "complete" ||
+    document.readyState === "interactive"
+  ) {
+    document.getElementById(
+      "git-stats"
+    ).innerHTML = `Haad has made ${count} commits in ${nRepos} repositories since August, 2022`;
+  }
+});
