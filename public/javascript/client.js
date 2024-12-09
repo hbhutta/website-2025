@@ -4,70 +4,52 @@ async function requestSomething(URL, callback) {
   return callback(value);
 }
 
-/*
 async function requestRepoNames() {
-  let response = await fetch("http://localhost:3000/repoNames");
-  let value = await response.json();
-  return value.map((repo) => repo["name"]);
+  return requestSomething(`http://localhost:3000/repoNames`, (value) => {
+    return value.map((repo) => repo["name"]);
+  });
 }
-*/
-async function requestRepoNames() {
+
+async function requestCommits(repoName) {
   return requestSomething(
-    `http://localhost:3000/commitCount?repoName=${repoName}`,
+    `http://localhost:3000/commits?repoName=${repoName}`,
     (value) => {
-      return value.map((repo) => repo["name"]);
+      return value["data"].map((element) => element["sha"]);
     }
   );
 }
 
-/*
-async function requestCommitCount(repoName) {
-  let response = await fetch(
-    `http://localhost:3000/commitCount?repoName=${repoName}`
-  );
-  let value = await response.json();
-  return value["data"].length;
-}
-*/
-async function requestCommitCount(repoName) {
-  return requestSomething(
-    `http://localhost:3000/commitCount?repoName=${repoName}`,
-    (value) => {
-      return value["data"].length;
-    }
-  );
-}
-
-/*
-async function requestInsertionCount(repoName, commitRef) {
-  let response = await fetch(
-    `http://localhost:3000/insertionCount?repoName=${repoName}&commitRef=${commitRef}`
-  )
-  let value = await response.json();
-  return value["stats"]["total"];
-}
-*/
 async function requestInsertionCount(repoName, commitRef) {
   return requestSomething(
     `http://localhost:3000/insertionCount?repoName=${repoName}&commitRef=${commitRef}`,
     (value) => {
-      return value["stats"]["total"];
+      return value["data"]["stats"]["total"];
     }
   );
 }
 
-var count = 0;
-var nRepos = 0;
+// var count = 0;
+// var nRepos = 0;
 
 requestRepoNames().then(async (repoNames) => {
-  nRepos = repoNames.length;
-  for (let i = 0; i < repoNames.length; i++) {
-    console.log(repoNames[i]);
-    count += await requestCommitCount(repoNames[i]);
-    console.log(count);
+  let repoCount = repoNames.length;
+  let commitCount = 0;
+  let insertionCount = 0;
+
+  for (let i = 0; i < repoCount; i++) {
+    console.log(`Repository: ${repoNames[i]}`);
+    let refs = await requestCommits(repoNames[i]);
+    console.log(`Current commit count: ${commitCount}`);
+    commitCount += refs.length;
+
+    for (let j = 0; j < refs.length; j++) {
+      console.log(`Commit: ${refs[j]}`);
+      console.log(`Current insertion count: ${insertionCount}`);
+      insertionCount += await requestInsertionCount(repoNames[i], refs[j]);
+    }
   }
 
-  /**
+  /*
    * This statement should already be loaded,
    * the only thing we should wait for is count and nRepos
    *
@@ -76,7 +58,7 @@ requestRepoNames().then(async (repoNames) => {
    * While we are still waiting for count and nRepos,
    * the message should be:
    *
-   * Haad has made 0 commits in 0 repositories since August, 2022.
+   * Haad has made written X lines of code over Y commits in Z repositories since August, 2022.
    *
    * But the moment count and nRepos have values,
    * this message should be updated.
@@ -96,6 +78,6 @@ requestRepoNames().then(async (repoNames) => {
   ) {
     document.getElementById(
       "git-stats"
-    ).innerHTML = `Haad has made ${count} commits in ${nRepos} repositories since August, 2022`;
+    ).innerHTML = `Haad has written ${insertionCount} lines of code over ${commitCount} commits in ${repoCount} repositories since August, 2022`;
   }
 });
