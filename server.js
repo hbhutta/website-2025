@@ -18,12 +18,6 @@ function logger(req, res, next) {
 }
 app.use(logger);
 
-// async function getSomething(URL) {
-//   let response = await fetch(URL);
-//   let value = await response.json();
-//   return value;
-// }
-
 async function getRepoNames() {
   let response = await fetch("https://api.github.com/users/hbhutta/repos");
   let value = await response.json()
@@ -64,6 +58,7 @@ app.get("/", (req, res) => {
   };
   res.sendFile(__dirname + "/views/home/index.html", options);
 });
+
 app.get("/repoNames", async (req, res) => {
   let repoNamesJSON = await getRepoNames();
   res.send(repoNamesJSON);
