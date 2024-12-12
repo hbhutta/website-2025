@@ -17,14 +17,31 @@ body {
   width: 150mm;
 }
 
-a {
-  color: rgb(22, 139, 193);
-  text-decoration: none;
+.box {
+  width: 10px;
+  height: 10px;
+  background-size: 200% 200%;
+  transition: background-position 0.1s;
+  transition-timing-function:cubic-bezier(0.755, 0.15, 0.855, 0.06);
 }
 
-a:active {
-  color: inherit;
+.to-right{
+  background-image: linear-gradient(to right, rgba(245, 184, 17, 0.967) 50%, whitesmoke 0);
+  background-position: right;
+}
+
+.to-right:hover {
+  background-position: left;
+}
+
+a {
+  color: black;
+  text-decoration: underline;
+}
+
+a:active, a:visited, a::after {
   text-decoration: none;
+  color: black;
 }
 
 p,

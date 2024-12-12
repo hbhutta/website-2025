@@ -28,10 +28,6 @@ async function requestInsertionCount(repoName, commitRef) {
   );
 }
 
-// var count = 0;
-// var nRepos = 0;
-
-/*
 requestRepoNames().then(async (repoNames) => {
   let repoCount = repoNames.length;
   let commitCount = 0;
@@ -58,35 +54,3 @@ requestRepoNames().then(async (repoNames) => {
     ).innerHTML = `Haad has written ${insertionCount} lines of code across ${commitCount} commits in ${repoCount} repositories since August, 2022`;
   }
 });
-*/
-
-setInterval(() => {
-  let milliseconds = document.getElementById(
-    "view-time-milliseconds"
-  ).innerHTML;
-
-  if (Number(milliseconds) % 1000 === 0) {
-    document.getElementById("view-time-seconds").innerHTML = (
-      Number(document.getElementById("view-time-seconds").innerHTML) + 1
-    ).toString();
-  }
-  if ((Number(milliseconds) + 1).toString().length == 1) {
-    // since we could have ms = 9
-    document.getElementById("view-time-milliseconds").innerHTML =
-      "00" +
-      (
-        Number(document.getElementById("view-time-milliseconds").innerHTML) + 1
-      ).toString().slice(-3);
-  } else if ((Number(milliseconds) + 1).toString().length == 2) {
-    // since we could have ms = 99
-    document.getElementById("view-time-milliseconds").innerHTML =
-      "0" +
-      (
-        Number(document.getElementById("view-time-milliseconds").innerHTML) + 1
-      ).toString().slice(-3);
-  } else {
-    document.getElementById("view-time-milliseconds").innerHTML = (
-      Number(document.getElementById("view-time-milliseconds").innerHTML) + 1
-    ).toString().slice(-3);
-  }
-}, 1);
